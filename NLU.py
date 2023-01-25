@@ -7,9 +7,10 @@ from nltk.corpus import state_union
 import spacy
 import en_core_web_sm
 from spacy.matcher import Matcher
-# nltk.download('state_union')
-# nltk.download('punkt')
-# nltk.download('averaged_perceptron_tagger')
+
+nltk.download('state_union')
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
 
 def time_final(content):
 #Below is a python function that takes an input string and prints date and time extracted from it using the regular expression patterns
