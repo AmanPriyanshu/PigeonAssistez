@@ -3,6 +3,7 @@ from streamlit_chat import message
 from courier_gateway import ThreadedMessenger
 from NLU import time_final, process_content
 import datetime
+import re
 import parsedatetime
 
 def get_text():
@@ -13,13 +14,41 @@ def query(courier_auth_token, slack_auth_token, params):
 	prestring = ""
 	if params["desc"] == "None":
 		user_input = params['text']
-		time = time_final(user_input)
+		tmp_input = re.sub(r'[^\w\s]', '', user_input)
+		time = time_final(tmp_input)
 		default_time=time_final('')
 		if time == default_time:
 			return "Please enter your appointment details!", "NLU"
 		else:
 			details = process_content(user_input)
-		return str(time)+"|"+str(details), "NLU"
+		app_time = time
+		date_time_str = app_time
+		date_time_obj = datetime.datetime.strptime(date_time_str, '%m-%d-%Y %H:%M:%S')
+		date_time_obj_now = datetime.datetime.now()
+		diff = date_time_obj - date_time_obj_now
+		diff_seconds = diff.total_seconds()
+		if diff_seconds<0:
+			return "You can't schedule an appointment in the past!", "NLU"
+		else:
+			if "slack" in params["text"].lower():
+				mode_type = "slack"
+				email = 'Sending to Slack'
+			else:
+				mode_type = "email"
+				match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', user_input)
+				try:
+					email = match.group(0)
+				except:
+					details += " (Default Email: amanpriyanshusms2001@gmail.com)"
+					email = "amanpriyanshusms2001@gmail.com"
+			toDetails = {'timeDetails': str(date_time_obj.time()), 'eventDetails': str(details), 'email': email}
+			if diff_seconds>1800:
+				ThreadedMessenger(courier_auth_token, slack_auth_token, toDetails, diff_seconds-1800, mode_type)
+				ThreadedMessenger(courier_auth_token, slack_auth_token, toDetails, diff_seconds, mode_type)
+				return "Scheduled an appointment for "+str(date_time_obj)+" with the specific details! With a reminder 30 minutes before your meeting.", "NLU"
+			else:
+				ThreadedMessenger(courier_auth_token, slack_auth_token, toDetails, diff_seconds, mode_type)
+				return "Scheduled an appointment for "+str(date_time_obj)+" with the specific details!", "NLU"
 	else:
 		app_time = str(params["time"])
 		if '.' in app_time:
@@ -33,10 +62,15 @@ def query(courier_auth_token, slack_auth_token, params):
 		if diff_seconds<0:
 			return "You can't schedule an appointment in the past!", "Manual"
 		else:
+			mode_type = "email"
+			toDetails = {'timeDetails': str(date_time_obj.time()), 'eventDetails': str(params["desc"]), 'email': "amanpriyanshusms2001@gmail.com"}
 			if diff_seconds>1800:
-				return "Scheduled an appointment for "+str(params["date"])+" "+str(params["time"])+" with the specific details! With a reminder 30 minutes before your meeting.", "Manual"
+				ThreadedMessenger(courier_auth_token, slack_auth_token, toDetails, diff_seconds-1800, mode_type)
+				ThreadedMessenger(courier_auth_token, slack_auth_token, toDetails, diff_seconds, mode_type)
+				return "Scheduled an appointment for "+str(params["date"])+" "+str(params["time"])+" to the user's amanpriyanshusms2001@gmail.com! With a reminder 30 minutes before your meeting.", "Manual"
 			else:
-				return "Scheduled an appointment for "+str(params["date"])+" "+str(params["time"])+" with the specific details!", "Manual"
+				ThreadedMessenger(courier_auth_token, slack_auth_token, toDetails, diff_seconds, mode_type)
+				return "Scheduled an appointment for "+str(params["date"])+" "+str(params["time"])+" to the user's amanpriyanshusms2001@gmail.com!", "Manual"
 
 def clear_desc():
 	st.session_state['description'] = 'None' 

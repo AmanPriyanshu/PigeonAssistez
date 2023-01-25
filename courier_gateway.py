@@ -39,7 +39,6 @@ class ThreadedMessenger(object):
 				},
 			"template": "N7MYVF5PWS4J2EKKG4HAYBVSM2CW",
 				"data": {
-					"name": self.to_details['name'],
 					"timeDetails": self.to_details['timeDetails'],
 					"eventDetails": self.to_details['eventDetails'],
 					},
