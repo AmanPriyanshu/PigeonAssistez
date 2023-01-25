@@ -1,17 +1,42 @@
 import streamlit as st
 from streamlit_chat import message
+from courier_gateway import ThreadedMessenger
+from NLU import time_final, process_content
 import datetime
+import parsedatetime
 
 def get_text():
 	input_text = st.text_input("You: ","Hello, how are you?", key="input")
 	return input_text 
 
-def query(params):
+def query(courier_auth_token, slack_auth_token, params):
+	prestring = ""
 	if params["desc"] == "None":
-		pass #analyze using NLP thingy
+		user_input = params['text']
+		time = time_final(user_input)
+		default_time=time_final('')
+		if time == default_time:
+			return "Please enter your appointment details!", "NLU"
+		else:
+			details = process_content(user_input)
+		return str(time)+"|"+str(details), "NLU"
 	else:
-		return "We got da time"+str(params["date"])+" "+str(params["time"])+"-->"+str(params["desc"])
-	return "Lmao"
+		app_time = str(params["time"])
+		if '.' in app_time:
+			app_time = app_time[:app_time.index('.')]
+		date_time_str = str(params["date"])+" "+app_time
+		date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
+		l_desc = params['desc'].lower()
+		date_time_obj_now = datetime.datetime.now()
+		diff = date_time_obj - date_time_obj_now
+		diff_seconds = diff.total_seconds()
+		if diff_seconds<0:
+			return "You can't schedule an appointment in the past!", "Manual"
+		else:
+			if diff_seconds>1800:
+				return "Scheduled an appointment for "+str(params["date"])+" "+str(params["time"])+" with the specific details! With a reminder 30 minutes before your meeting.", "Manual"
+			else:
+				return "Scheduled an appointment for "+str(params["date"])+" "+str(params["time"])+" with the specific details!", "Manual"
 
 def clear_desc():
 	st.session_state['description'] = 'None' 
@@ -52,13 +77,16 @@ def main():
 		st.text("")
 		st.text("")
 		if st.button("Send"):
-			output = query({
+			output, response = query(courier_auth_token, slack_auth_token, {
 					"date": d,
 					"time": t,
 					"desc": desc,
 					"text": user_input,
 				})
-			st.session_state.past.append(user_input)
+			if response=='Manual':
+				st.session_state.past.append("Manually entered: "+str(d)+" "+str(t)+". With Details: "+desc)
+			else:
+				st.session_state.past.append(user_input)
 			st.session_state.generated.append(output)
 
 	if st.session_state['generated']:
