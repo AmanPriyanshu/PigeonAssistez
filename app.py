@@ -13,6 +13,11 @@ def query(params):
 		return "We got da time"+str(params["date"])+" "+str(params["time"])+"-->"+str(params["desc"])
 	return "Lmao"
 
+def clear_desc():
+	st.session_state['description'] = 'None' 
+	return 'None'
+
+
 def main():
 	st.title("Chat with our Bespoke Pigeon")
 	st.markdown("##### We use Courier to deliver your messages, whereas our in-house chatbot helps organize your schedules amonst individuals or your slack team.")
@@ -27,6 +32,10 @@ def main():
 		st.session_state['past'] = []
 
 	with st.expander("Schedule your appointment (manually)"):
+		_, col_j = st.columns([4, 1])
+		with col_j:
+			if st.button("Reset"):
+				st.session_state['description'] = 'None'
 		col_a, col_b, col_c = st.columns([1, 1, 4])
 		with col_a:
 			d = st.date_input("Enter Date", datetime.datetime.now().date())
@@ -36,7 +45,7 @@ def main():
 			placeholder = st.empty()
 			desc = placeholder.text_input("Enter Details", "None", key="description")
 
-	col1, col2, col3 = st.columns([7, 1, 1])
+	col1, col2 = st.columns([7, 1])
 	with col1:
 		user_input = get_text()
 	with col2:
@@ -51,11 +60,6 @@ def main():
 				})
 			st.session_state.past.append(user_input)
 			st.session_state.generated.append(output)
-	with col3:
-		st.text("")
-		st.text("")
-		if st.button("Reset"):
-			desc = placeholder.text_input('text', value='None', key="description")
 
 	if st.session_state['generated']:
 		for i in range(len(st.session_state['generated'])-1, -1, -1):
