@@ -1,6 +1,6 @@
 # PigeonAssistez
 
-
+![demo](https://github.com/AmanPriyanshu/PigeonAssistez/blob/main/images/github.png)
 
 ## Introduction
 Introducing the ultimate productivity tool for busy bees, Pigeon Assistez, - our AI (NLP) based chatbot that helps you schedule your appointments in a breeze! Say goodbye to the hassle of dealing with static scheduling apps and hello to engaging conversations with our chatbot. With state-of-the-art intent inference, date/time tag retrieval, and POS tagging, our chatbot can infer meeting timings from even the most obscure minute-of-the-meeting notes.
@@ -29,8 +29,6 @@ The chatbot also integrates with Courier's API, allowing it to send notification
 The chatbot is designed to take the pain out of scheduling appointments and meetings, and its integration with Courier's API makes sure that users never miss a meeting again. With its engaging and interactive nature and state-of-the-art technology, our chatbot is the ultimate productivity tool for anyone looking to improve their productivity and organization.
 
 Additionally, The chatbot's ability to schedule appointments through conversations makes the process more engaging and interactive, and it's designed to cater to the needs of both individuals and corporations.
-
-![demo](https://github.com/AmanPriyanshu/PigeonAssistez/blob/main/images/github.png)
 
 ## Our Tools 
 Our project is built using a combination of different technologies and frameworks. The backend stack is built with Spacy, NLTK POS tagging, and intent extractor, which provides us with state-of-the-art natural language processing capabilities. This allows the chatbot to infer meeting timings from notes and schedule appointments with ease. The frontend stack is built with Streamlit, which allows for a smooth and easy-to-use demonstration of the application. We also integrated the chatbot with Courier's API to provide timely notifications and reminders.
